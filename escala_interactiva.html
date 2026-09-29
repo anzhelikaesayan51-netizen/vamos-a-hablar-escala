@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vamos a hablar</title>
+<style>
+:root{font-family:Arial,sans-serif;color:#111;background:#f5f7ff}
+*{box-sizing:border-box}body{margin:0;padding:24px;background:#f5f7ff}
+.app{max-width:1200px;margin:auto}.intro{background:#dce8ff;border-radius:28px;padding:22px 28px;margin-bottom:24px}
+h1{margin:0 0 8px;font-size:clamp(28px,4vw,48px)}.intro p{margin:0;font-size:clamp(16px,2vw,23px);font-weight:700}
+.statement{background:#dce8ff;border-radius:22px;padding:20px 24px;margin:18px 0 10px;font-size:clamp(17px,2vw,24px);text-align:center}
+.scale-wrap{background:#fff;border-radius:20px;padding:18px 20px 14px;box-shadow:0 2px 8px #b8bfd044}.scale{position:relative;height:58px;border-radius:30px;display:flex;overflow:visible;background:linear-gradient(90deg,#ed7074 0 20%,#ffc36e 20% 40%,#f8e34a 40% 60%,#b5d36c 60% 80%,#68ce88 80%)}
+.scale button{position:absolute;top:50%;width:38px;height:38px;border:4px solid #fff;border-radius:50%;background:#333;transform:translate(-50%,-50%);cursor:grab;box-shadow:0 2px 6px #0006;touch-action:none}.scale button:active{cursor:grabbing}.value{text-align:center;margin-top:10px;font-size:15px;font-weight:700}.actions{display:flex;gap:10px;justify-content:center;margin:24px 0;flex-wrap:wrap}button.action{border:0;border-radius:10px;padding:11px 18px;background:#333;color:#fff;font-size:16px;cursor:pointer}button.action.secondary{background:#dce8ff;color:#111}.result{display:none;text-align:center;background:#fff;border-radius:16px;padding:16px;margin-top:15px;font-size:18px}.legend{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin:18px 0;font-size:14px}.dot{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:-2px;margin-right:4px}
+@media(max-width:600px){body{padding:12px}.scale-wrap{padding:14px 10px}.scale{height:52px}}
+</style></head>
+<body><main class="app"><section class="intro"><h1>Vamos a hablar</h1><p>Lee las siguientes preguntas y evalúa cada una según vuestra experiencia personal, usando la escala del 1 al 5.</p></section><div class="legend"><span><i class="dot" style="background:#ed7074"></i>1 Totalmente en desacuerdo</span><span><i class="dot" style="background:#ffc36e"></i>2 En desacuerdo</span><span><i class="dot" style="background:#f8e34a"></i>3 Ni de acuerdo ni en desacuerdo</span><span><i class="dot" style="background:#b5d36c"></i>4 De acuerdo</span><span><i class="dot" style="background:#68ce88"></i>5 Totalmente de acuerdo</span></div><div id="items"></div><div class="actions"><button class="action" id="show">Mostrar resultados</button><button class="action secondary" id="reset">Reiniciar</button></div><div class="result" id="result"></div></main>
+<script>
+const questions=[
+'El linchamiento digital es peligroso porque las personas a menudo no tienen oportunidad de defenderse.',
+'La cacería de brujas moderna busca castigar a otros sin pensar en las consecuencias.',
+'El estigma social que se crea al ser cancelado puede afectar profundamente la vida de alguien.',
+'La cultura de la cancelación es como una espada de doble filo: puede corregir errores, pero también puede destruir a personas sin pruebas claras.',
+'Las mentiras pueden desacreditar a una persona sin que esta tenga la oportunidad de defenderse.',
+'Es importante fomentar una cultura de diálogo en lugar de hacer boicot y cancelar sin razón.'
+];
+const labels=['Totalmente en desacuerdo','En desacuerdo','Ni de acuerdo ni en desacuerdo','De acuerdo','Totalmente de acuerdo'];
+const colors=['#ed7074','#ffc36e','#f8e34a','#b5d36c','#68ce88'];
+const values=Array(questions.length).fill(3), items=document.getElementById('items');
+questions.forEach((q,i)=>{const article=document.createElement('article');article.innerHTML=`<div class="statement">${q}</div><div class="scale-wrap"><div class="scale" role="slider" aria-valuemin="1" aria-valuemax="5" aria-valuenow="3" tabindex="0"><button aria-label="Valoración de la afirmación ${i+1}"></button></div><div class="value">3 — ${labels[2]}</div></div>`;items.append(article);const scale=article.querySelector('.scale'), knob=article.querySelector('button'), value=article.querySelector('.value');
+function set(v){v=Math.max(1,Math.min(5,Math.round(v)));values[i]=v;knob.style.left=((v-1)/4*100)+'%';knob.style.background=colors[v-1];scale.setAttribute('aria-valuenow',v);value.textContent=v+' — '+labels[v-1]}
+function pointer(e){const r=scale.getBoundingClientRect();set(1+((e.clientX-r.left)/r.width)*4)}
+knob.addEventListener('pointerdown',e=>{knob.setPointerCapture(e.pointerId);pointer(e);const move=x=>pointer(x);knob.addEventListener('pointermove',move);knob.addEventListener('pointerup',()=>knob.removeEventListener('pointermove',move),{once:true})});scale.addEventListener('click',e=>{if(e.target!==knob)pointer(e)});scale.addEventListener('keydown',e=>{if(e.key==='ArrowLeft'||e.key==='ArrowDown')set(values[i]-1);if(e.key==='ArrowRight'||e.key==='ArrowUp')set(values[i]+1)});set(3)});
+document.getElementById('reset').onclick=()=>location.reload();document.getElementById('show').onclick=()=>{const avg=(values.reduce((a,b)=>a+b,0)/values.length).toFixed(1);const r=document.getElementById('result');r.style.display='block';r.textContent=`Tu media es ${avg} de 5. ¡Gracias por participar!`;r.scrollIntoView({behavior:'smooth',block:'center'})};
+</script></body></html>
